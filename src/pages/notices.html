@@ -1,0 +1,50 @@
+---
+route: notices
+title: Notices — TABOUKHI
+station: contact
+tab:
+eyebrow: NOTICES
+---
+<header class="head">
+  <p class="eyebrow">{{eyebrow}}</p>
+  <h1 class="title" tabindex="-1">Notices.</h1>
+</header>
+<section class="blk--first" aria-labelledby="nt-preview">
+  <h2 class="group-label" id="nt-preview">This preview</h2>
+  <div class="group">
+    <p class="row--text" data-peek>This is a preview of the TABOUKHI website. Its forms store nothing and send nothing.</p>
+    <p class="row--text">The site sets no cookies, runs no analytics, and makes no requests to anyone else.</p>
+    <p class="row--text">It keeps one setting on this device, whether the film is held, and a copy of its pages so they open offline. A few notes for the current visit are cleared when the tab closes.</p>
+  </div>
+</section>
+<section class="blk" aria-label="Film">
+  <div class="group">
+    <div class="switch-row switch-row--row">
+      <span class="switch-row__t"><label for="n-film">Film</label></span>
+      <span class="row__v"><span class="film-state" data-film-state data-on="Playing" data-off="Held">Playing</span><span class="sw sw--js"><input class="sw__input" id="n-film" type="checkbox" role="switch" checked aria-checked="true" aria-describedby="n-film-help" data-film-switch>{{switch}}</span></span>
+    </div>
+  </div>
+  <p class="group-foot" id="n-film-help">Holds the film on its current frame. It stays on screen.</p>
+</section>
+<section class="blk" aria-labelledby="nt-live">
+  <h2 class="group-label" id="nt-live">When it is live</h2>
+  <div class="group">
+    <p class="row--text" data-ph>What you send through a form will be kept only to answer you, and seen only by those at TABOUKHI who answer it.</p>
+    <p class="row--text" data-ph>To see or remove what we hold, write to info@taboukhi.com.</p>
+  </div>
+</section>
+<section class="blk" aria-labelledby="nt-credits">
+  <h2 class="group-label" id="nt-credits">Credits</h2>
+  <div class="group">
+    <p class="row--text">Film, wordmark and symbol: TABOUKHI.</p>
+    <p class="row--text">Inter by Rasmus Andersson, under the SIL Open Font License.</p>
+    <div class="row--text">
+      <p>Interface elements adapted from Uiverse.io (github.com/uiverse-io/galaxy), under the MIT License:</p>
+      <ul class="credits">
+{{credits}}
+      </ul>
+    </div>
+    <p class="row--text">© TABOUKHI</p>
+  </div>
+</section>
+{{placeholders}}

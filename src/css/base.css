@@ -1,0 +1,36 @@
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+/* Inter ships as the metric-matched fallback for the platform face (copied from the hiring
+   site's css/main.css:5–6, unchanged). */
+@font-face { font-family: "Inter"; src: url("../assets/fonts/inter.woff2") format("woff2"); font-weight: 400 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter Fallback"; src: local("Arial"), local("Roboto"); size-adjust: 107.25%; ascent-override: 90.32%; descent-override: 22.49%; line-gap-override: 0%; }
+
+*, *::before, *::after { box-sizing: border-box; }
+/* html carries the onyx; body has no background, or it would paint over the fixed film. */
+html { background: var(--onyx); color-scheme: dark; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  margin: 0; min-height: 100vh; min-height: 100svh; color: var(--bone);
+  font: 400 17px/1.47 var(--sys); letter-spacing: var(--track-read);
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; overflow-wrap: break-word;
+  -webkit-tap-highlight-color: transparent;
+}
+/* With JS the document never scrolls: only the sheet does. */
+.js body { height: 100vh; height: 100svh; overflow: hidden; overscroll-behavior: none; }
+/* And the root: a pan on the Home frost must never become pull-to-refresh or a rubber band. */
+html.js { overscroll-behavior: none; }
+[hidden] { display: none !important; }
+h1, h2, h3, p, ul, ol, li, fieldset, legend, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+fieldset { border: 0; min-width: 0; }
+/* No italics anywhere in the identity (p10) — including the elements browsers slant by default. */
+em, i, cite, dfn, var, address { font-style: normal; }
+svg { display: block; fill: currentColor; }
+.defs { position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none; }
+a { color: inherit; text-decoration: none; }
+button, input, textarea, select { font: inherit; color: inherit; letter-spacing: inherit; }
+button { cursor: pointer; }
+::selection { background: rgba(244, 242, 237, .3); }
+:focus-visible { outline: 2px solid var(--bone); outline-offset: 3px; }
+
+.vh { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+.skip { position: fixed; left: max(var(--gutter), env(safe-area-inset-left, 0px)); top: var(--top); z-index: 60; display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; background: var(--bone); color: var(--onyx); font: 600 15px/1 var(--sys); letter-spacing: var(--track-read); transform: translateY(-200%); }
+.skip:focus { transform: none; }

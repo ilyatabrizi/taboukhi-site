@@ -1,0 +1,84 @@
+---
+route: commission
+title: Commission — TABOUKHI
+station: commission
+tab: commission
+eyebrow: COMMISSION
+---
+<header class="head">
+  <p class="eyebrow">{{eyebrow}}</p>
+  <h1 class="title" tabindex="-1">Design your eyewear with us.</h1>
+  <p class="lede">Select clients design with the house rather than choose from it. Tell us who you are and what you have in mind.</p>
+  <p class="fine blk--tight" data-peek data-ph>About a minute. Every request is read in confidence.</p>
+</header>
+<div class="blk" data-form-wrap="commission">
+  <form class="form" data-form="commission" action="mailto:info@taboukhi.com?subject=Commission" method="post" enctype="text/plain">
+    <fieldset class="form-block">
+      <legend class="group-label">You</legend>
+      <div class="group">
+        <div class="frow"><label for="c-name">Name</label><div class="frow__in">
+          <input id="c-name" name="name" type="text" required autocomplete="name" autocapitalize="words" spellcheck="false" enterkeyhint="next" maxlength="80" placeholder="Full name">
+          <p class="err frow__err" id="c-name-err" data-err="name" hidden>Your name, please.</p>
+        </div></div>
+        <div class="frow"><label for="c-email">Email</label><div class="frow__in">
+          <input id="c-email" name="email" type="email" required pattern="[^@\s]+@[^@\s]+\.[^@\s]{2,}" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" enterkeyhint="next" maxlength="254" placeholder="name@example.com" aria-describedby="c-email-help">
+          <p class="frow__help" id="c-email-help">If we write, it will be to this address.</p>
+          <p class="err frow__err" id="c-email-err" data-err="email" data-empty="Your email, please." hidden>That address does not look complete.</p>
+        </div></div>
+        <div class="frow"><label for="c-phone">Phone</label><div class="frow__in">
+          <input id="c-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" enterkeyhint="next" maxlength="32" placeholder="Optional" aria-describedby="c-phone-help">
+          <p class="frow__help" id="c-phone-help">Only if you would rather talk.</p>
+          <p class="err frow__err" id="c-phone-err" data-err="phone" hidden>Add a phone number, or choose Email.</p>
+        </div></div>
+        <div class="frow"><label for="c-based">Based in</label><div class="frow__in">
+          <input id="c-based" name="based" type="text" autocomplete="address-level2" autocapitalize="words" enterkeyhint="next" maxlength="100" placeholder="City, country (optional)" aria-describedby="c-based-help">
+          <p class="frow__help" id="c-based-help">So we reply at a sensible hour.</p>
+        </div></div>
+      </div>
+    </fieldset>
+    <div class="form-block">
+      <label class="group-label" for="c-idea">Your idea</label>
+      <div class="group">
+        <div class="area">
+          <textarea id="c-idea" name="idea" required maxlength="600" rows="4" autocapitalize="sentences" placeholder="A shape, a material, an occasion. A few words are enough."></textarea>
+          <p class="err frow__err" id="c-idea-err" data-err="idea" hidden>A few words about your idea, please.</p>
+        </div>
+      </div>
+    </div>
+    <fieldset class="form-block seg">
+      <legend class="vh">Reply by</legend>
+      <p class="group-label" aria-hidden="true">Reply by</p>
+      <div class="seg__track">
+        <input type="radio" id="c-r-email" name="reply" value="email" checked><label for="c-r-email">Email</label>
+        <input type="radio" id="c-r-phone" name="reply" value="phone"><label for="c-r-phone">Phone</label>
+        <input type="radio" id="c-r-either" name="reply" value="either"><label for="c-r-either">Either</label>
+        <span class="seg__thumb" aria-hidden="true"></span>
+      </div>
+    </fieldset>
+    <div class="form-block">
+      <div class="group">
+        <div class="switch-row">
+          <span class="switch-row__t"><label for="c-consent">Keep my details to answer this request.</label></span>
+          <span class="sw"><input class="sw__input" id="c-consent" name="consent" type="checkbox" role="switch" required aria-checked="false" aria-describedby="c-consent-help">{{switch}}</span>
+        </div>
+      </div>
+      <p class="group-foot" id="c-consent-help" data-ph>Seen only by those at TABOUKHI who handle commissions.</p>
+      <p class="err field-err" id="c-consent-err" data-err="consent" hidden>Turn this on so we can answer you.</p>
+    </div>
+    <div class="form-block notes">
+      <p class="fine" data-ph>We cannot take on every request. We will tell you plainly either way.</p>
+      <p class="flag">Preview. Nothing is sent from this page yet.</p>
+    </div>
+    <div class="form-block">
+      <button class="btn" type="submit" data-busy="Sending"><span class="btn__l"><span>Send request</span><span aria-hidden="true">Send request</span></span></button>
+    </div>
+  </form>
+</div>
+<template data-done="commission">
+  <div class="done" aria-live="polite">
+    <div class="done__mark" aria-hidden="true"><svg viewBox="1403.08 4.1 205.84 215.68" focusable="false"><use href="#p-k"/></svg></div>
+    <p class="done__h" tabindex="-1" data-ph>Thank you. On the live site we would reply to <span data-email></span>.</p>
+    <p class="done__p">This is a preview. Nothing was sent.</p>
+    <button class="tlink" type="button" data-reset>Start again</button>
+  </div>
+</template>

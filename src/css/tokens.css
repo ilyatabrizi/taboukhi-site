@@ -1,0 +1,86 @@
+/* TABOUKHI — the website demo.
+   One film of the engraved temple arm, one sheet of glass in front of it, two capsules.
+   build.py concatenates src/css/*.css in this order into css/site.css:
+   tokens, base, glass, film, chrome, sheet, lens, controls, forms, pages, fallback. */
+
+/* ── Registered properties ──────────────────────────────────────────────────
+   Registered so they can be animated (WAAPI, transitions) and so a length
+   written in svh can be read back from getComputedStyle as px. */
+/* The lens variables do not inherit: they are written every frame on .sheet (and on the tier-2
+   video and still, each its own copy), and an inheriting value would restyle the whole sheet. */
+@property --lr { syntax: "<length>"; inherits: false; initial-value: 132px; }
+@property --lx { syntax: "<length-percentage>"; inherits: false; initial-value: 54%; }
+@property --ly { syntax: "<length-percentage>"; inherits: false; initial-value: 43%; }
+@property --rk { syntax: "<color>"; inherits: false; initial-value: transparent; }
+/* The rim light's position: read only by the element that carries it (its --glass-spec is
+   resolved there), so it does not inherit — a moving light never restyles the bar's tabs. */
+@property --hx { syntax: "<percentage>"; inherits: false; initial-value: 0%; }
+@property --hy { syntax: "<percentage>"; inherits: false; initial-value: 0%; }
+@property --r { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --rim { syntax: "<angle>"; inherits: false; initial-value: 250deg; }
+@property --peek-h { syntax: "<length>"; inherits: false; initial-value: 0px; }
+/* How much white wash the sheet paints: half on the Home frost, where onyx is the ground (p08)
+   and a clear lens must not read as a hole punched in grey fog; whole everywhere else. */
+@property --wash { syntax: "<number>"; inherits: false; initial-value: 1; }
+/* The morph's clip, as four insets. A WAAPI animation of clip-path itself is composited by
+   Chrome and drops the element's mask-image while it runs (the lens hole vanished
+   mid-morph); animating these lengths keeps the clip on the main thread. */
+@property --ct { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --cr { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --cb { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --cl { syntax: "<length>"; inherits: false; initial-value: 0px; }
+/* The morph's opaque rect (the sheet's target box inside the mask). Registered so the way
+   home can grow it with the clip: the sheet spreads back out into the frost. */
+@property --mx { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --my { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --mw { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --mh { syntax: "<length>"; inherits: false; initial-value: 0px; }
+
+:root {
+  /* Colour — brand book p08/p09, exact */
+  --onyx: #020202; --bone: #F4F2ED;
+  --ti: #A9A8A3; --ti-2: #C3C2BD; --ti-3: #8E8D89;              /* colour names only, never in copy */
+  --label-2: rgba(244, 242, 237, .84); --label-3: rgba(244, 242, 237, .78);
+  --sep: rgba(255, 255, 255, .10); --fill: rgba(255, 255, 255, .05); --fill-2: rgba(255, 255, 255, .10);
+
+  /* Glass — p13/p14, exact */
+  --glass-blur: 20px; --glass-saturation: 185%; --glass-dim: .32;
+  --glass-border: rgba(255, 255, 255, .14); --glass-highlight: rgba(255, 255, 255, .5);
+  --glass-radius: 28px;
+  --glass-ease: cubic-bezier(.22, 1, .36, 1); --spring: cubic-bezier(.32, 1.25, .5, 1);
+  --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, .13), rgba(255, 255, 255, .06) 48%, rgba(255, 255, 255, .1));
+  --glass-bg-hover: linear-gradient(135deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .1) 48%, rgba(255, 255, 255, .16));
+  --glass-inner: inset 0 1px 0 rgba(255, 255, 255, .2), inset 0 -1px 0 rgba(255, 255, 255, .05);
+  --glass-shadow: none;                                          /* D11: book p15 forbids drop shadows */
+  /* Specular edge as a radial light parked upper-left (adapted from Spacious74).
+     NOTE: a custom property resolves its var()s where it is declared, so this token is
+     re-declared on each element that moves --hx/--hy (glass.css), or the pointer light
+     would read :root's 0% forever. */
+  --hx: 0%; --hy: 0%;
+  --glass-spec: radial-gradient(circle 320px at var(--hx) var(--hy),
+      var(--glass-highlight), rgba(255, 255, 255, .12) 46%, rgba(255, 255, 255, .04) 70%, rgba(255, 255, 255, .16));
+
+  /* Type — p10 */
+  --sys: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Segoe UI Variable Text", "Segoe UI", Roboto, "Inter", "Inter Fallback", system-ui, sans-serif;
+  --sys-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Segoe UI Variable Display", "Segoe UI", Roboto, "Inter", "Inter Fallback", system-ui, sans-serif;
+  --track-read: -.012em; --track-display: -.028em;
+
+  /* Layout */
+  --gutter: 16px; --top: calc(env(safe-area-inset-top, 0px) + 12px);
+  --bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  --cap-h: 44px; --bar-h: 56px;
+
+  /* ADDITIONS (each justified) */
+  --expo: cubic-bezier(.4, 0, 0, 1);              /* label roll on the bone button (Mohsinech) */
+  --wash-focus: rgba(244, 242, 237, .045);        /* focused row wash, from the hiring site */
+  --paint-group: linear-gradient(180deg, rgba(255, 255, 255, .075), rgba(255, 255, 255, .04));
+  --paint-group-edge: inset 0 1px 0 rgba(255, 255, 255, .14), inset 0 0 0 1px rgba(255, 255, 255, .05);
+  --paint-fallback: rgba(14, 14, 14, .94);        /* no backdrop-filter */
+  --paint-rt: rgba(16, 16, 18, .97);              /* prefers-reduced-transparency */
+  --paint-toast: rgba(20, 20, 22, .92);
+  --error: #FF8A80;                               /* p08: meaning-colour from outside the palette, error text only, 13px */
+  /* Lens (written by JS on .sheet and .lens only, never on :root) */
+  --lx: 50%; --ly: 48%; --lr: 132px;
+}
+@media (min-width: 720px) { :root { --gutter: 28px; } }
+@media (min-width: 1080px) { :root { --gutter: 40px; --top: 24px; --bottom: 24px; } }

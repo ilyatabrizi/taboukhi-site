@@ -1,0 +1,170 @@
+/* ── The sheet (C5): the frost on Home, a panel or a bottom sheet everywhere else ──
+   One element, one backdrop-filter. On Home it covers the screen and the lens is a hole
+   cut in it with a mask; on inner pages it gathers into a side panel (≥720px) or a
+   bottom sheet with detents (phone). JS writes the lens variables and the detent offset
+   on the element itself; no ancestor is ever transformed. */
+.sheet {
+  position: fixed; z-index: 10;
+  border-radius: var(--glass-radius);
+  color: var(--bone);
+}
+.sheet__in { position: absolute; inset: 0; display: flex; flex-direction: column; border-radius: inherit; }
+.sheet__scroll { position: relative; flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.sheet__scroll::-webkit-scrollbar { display: none; }
+#page { outline: none; }
+
+/* The grabber strip (phone only): 44px, a drag surface, a tap toggles Peek and Full. */
+.sheet__grab {
+  position: relative; flex: none; display: none; width: 100%; height: 44px; margin: 0; padding: 0;
+  border: 0; border-radius: var(--glass-radius) var(--glass-radius) 0 0; background: none; touch-action: none;
+}
+.sheet__grab::after { content: ""; position: absolute; left: 50%; top: 8px; width: 36px; height: 5px; margin-left: -18px; border-radius: 999px; background: rgba(244, 242, 237, .34); transition: background-color .2s linear; }
+.sheet__grab:focus-visible { outline-offset: -4px; }
+
+/* C15. The preview chip: paint, top-right of every sheet. 44px target, 28px pill. */
+.ph-chip { position: absolute; z-index: 4; top: 0; right: 8px; display: flex; align-items: center; height: 44px; padding: 0 4px; border: 0; background: none; color: var(--label-2); }
+.ph-chip span { display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border-radius: 999px; background: var(--fill-2); box-shadow: inset 0 0 0 1px var(--sep); font: 500 13px/1 var(--sys); letter-spacing: 0; transition: background-color .2s linear, color .2s linear; }
+.ph-chip[aria-pressed="true"] span { background: rgba(244, 242, 237, .2); color: var(--bone); }
+.ph-chip:focus-visible { outline: 0; }
+.ph-chip:focus-visible span { outline: 2px solid var(--bone); outline-offset: 2px; }
+.ph-cap { display: none; margin: 0 0 16px; font: 400 13px/1.4 var(--sys); color: var(--label-2); }
+.show-ph .ph-cap { display: block; }
+.show-ph [data-ph] { outline: 1px dashed var(--ti-3); outline-offset: 3px; border-radius: 2px; }
+
+/* ── Home: the sheet is the frost ─────────────────────────────────────────── */
+.sheet[data-state="home"] {
+  inset: 0; border-radius: 0;
+  --wash: .5;
+  --lx: 54%; --ly: 43%; --lr: 110px;                      /* no-JS default hole, phone */
+  -webkit-mask-image: radial-gradient(circle var(--lr) at var(--lx) var(--ly), transparent calc(var(--lr) - .5px), #000 calc(var(--lr) + .5px));
+  mask-image: radial-gradient(circle var(--lr) at var(--lx) var(--ly), transparent calc(var(--lr) - .5px), #000 calc(var(--lr) + .5px));
+  -webkit-touch-callout: none; user-select: none; -webkit-user-select: none;
+  /* One-finger pans belong to the lens and the hold, never to the browser (a pan that the
+     browser takes cancels the pointer: the held glass would slam shut). Pinch-zoom stays. */
+  touch-action: pinch-zoom;
+}
+@media (min-width: 720px) { .sheet[data-state="home"] { --lx: 50%; --ly: 48%; --lr: 150px; } }
+/* Gathering back into the frost: the wash goes down with the morph, so nothing settles after it. */
+.sheet[data-state="morph"].to-home { --wash: .5; }
+.sheet[data-state="home"]::before, .sheet[data-state="morph"]::before { opacity: 0; }
+/* The frost has no edge of its own: the inset highlight would draw a hairline along the screen's top. */
+.sheet[data-state="home"], .sheet[data-state="morph"] { box-shadow: none; }
+.sheet[data-state="home"] .sheet__grab, .sheet[data-state="home"] .ph-chip, .sheet[data-state="home"] .ph-cap { display: none; }
+.sheet[data-state="home"] .sheet__scroll { overflow: hidden; }
+
+/* The Home copy block: bottom-left on the frost. */
+.home { position: absolute; left: 24px; right: 24px; bottom: calc(var(--bottom) + var(--bar-h) + 24px); }
+.home__line { font: 600 17px/1.4 var(--sys); letter-spacing: -.012em; color: var(--bone); outline: none; text-wrap: pretty; }
+.home__hint { margin-top: 8px; font: 400 13px/1.4 var(--sys); letter-spacing: 0; color: var(--label-2); text-wrap: pretty; }
+@media (max-width: 359.98px) { .home__line { text-wrap: balance; } }
+@media (hover: hover) and (pointer: fine) { .hint-touch { display: none; } }
+@media not all and (hover: hover) and (pointer: fine) { .hint-fine { display: none; } }
+@media (min-width: 720px) {
+  .home { left: max(var(--gutter), env(safe-area-inset-left, 0px)); right: auto; max-width: 440px; bottom: 40px; }
+  .home__line { font-size: 21px; line-height: 1.3; letter-spacing: -.02em; }
+}
+/* Where the bar would collide with the copy (narrow desktops, tablets), the copy stands
+   on the bar instead, as on the phone. Set by JS from the bar's real width. */
+.copy-lift .home { bottom: calc(var(--bottom) + var(--bar-h) + 24px); }
+
+/* ── Morph: the frost gathering into the sheet (and back) ─────────────────────
+   The box stays full-screen; the clip closes on the target rect while the lens hole opens
+   to cover. Seven mask layers keep the target rect opaque (coloured --rk) while the hole
+   clears the rest: a centre bar, two side strips and four quarter discs that tile the
+   rounded rect without overlapping (overlaps would double the alpha while --rk ramps).
+   The ROUNDING lives in the mask, not the clip: Chrome drops an element's mask-image while
+   a rounded clip-path inset changes frame by frame on a backdrop-filtered element. */
+.sheet[data-state="morph"] {
+  inset: 0; border-radius: 0;
+  -webkit-mask-image:
+    linear-gradient(var(--rk) 0 0), linear-gradient(var(--rk) 0 0), linear-gradient(var(--rk) 0 0),
+    radial-gradient(circle at 28px 28px, var(--rk) 27.5px, transparent 28.5px), radial-gradient(circle at 0 28px, var(--rk) 27.5px, transparent 28.5px),
+    radial-gradient(circle at 28px 0, var(--rk) 27.5px, transparent 28.5px), radial-gradient(circle at 0 0, var(--rk) 27.5px, transparent 28.5px),
+    radial-gradient(circle var(--lr) at var(--lx) var(--ly), transparent calc(var(--lr) - .5px), #000 calc(var(--lr) + .5px));
+  mask-image:
+    linear-gradient(var(--rk) 0 0), linear-gradient(var(--rk) 0 0), linear-gradient(var(--rk) 0 0),
+    radial-gradient(circle at 28px 28px, var(--rk) 27.5px, transparent 28.5px), radial-gradient(circle at 0 28px, var(--rk) 27.5px, transparent 28.5px),
+    radial-gradient(circle at 28px 0, var(--rk) 27.5px, transparent 28.5px), radial-gradient(circle at 0 0, var(--rk) 27.5px, transparent 28.5px),
+    radial-gradient(circle var(--lr) at var(--lx) var(--ly), transparent calc(var(--lr) - .5px), #000 calc(var(--lr) + .5px));
+  -webkit-mask-size:
+    calc(var(--mw) - 56px) var(--mh), 28px calc(var(--mh) - 56px), 28px calc(var(--mh) - 56px),
+    28px 28px, 28px 28px, 28px 28px, 28px 28px, 100% 100%;
+  mask-size:
+    calc(var(--mw) - 56px) var(--mh), 28px calc(var(--mh) - 56px), 28px calc(var(--mh) - 56px),
+    28px 28px, 28px 28px, 28px 28px, 28px 28px, 100% 100%;
+  -webkit-mask-position:
+    calc(var(--mx) + 28px) var(--my), var(--mx) calc(var(--my) + 28px), calc(var(--mx) + var(--mw) - 28px) calc(var(--my) + 28px),
+    var(--mx) var(--my), calc(var(--mx) + var(--mw) - 28px) var(--my),
+    var(--mx) calc(var(--my) + var(--mh) - 28px), calc(var(--mx) + var(--mw) - 28px) calc(var(--my) + var(--mh) - 28px),
+    0 0;
+  mask-position:
+    calc(var(--mx) + 28px) var(--my), var(--mx) calc(var(--my) + 28px), calc(var(--mx) + var(--mw) - 28px) calc(var(--my) + 28px),
+    var(--mx) var(--my), calc(var(--mx) + var(--mw) - 28px) var(--my),
+    var(--mx) calc(var(--my) + var(--mh) - 28px), calc(var(--mx) + var(--mw) - 28px) calc(var(--my) + var(--mh) - 28px),
+    0 0;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  clip-path: inset(var(--ct) var(--cr) var(--cb) var(--cl));
+}
+/* On the way home the strip and the chip leave with the content. */
+body[data-route="home"] .sheet[data-state="morph"] :is(.sheet__grab, .ph-chip, .ph-cap) { visibility: hidden; }
+
+/* The ghost holds the inner-page box for the current layout, so JS can measure a target
+   rect without touching the real sheet. Never painted. */
+.sheet-ghost { position: fixed; visibility: hidden; pointer-events: none; z-index: -2; --peek-h: clamp(300px, 46svh, 420px); }
+/* A copy of a page laid out in the ghost for one synchronous measure (sheet.js measureNeed):
+   the phone sheet's strip (44px) and content padding. */
+.sheet-measure { position: absolute; left: 0; right: 0; top: 44px; padding: 0 20px 28px; visibility: hidden; }
+
+/* ── Panel (≥720px) ───────────────────────────────────────────────────────── */
+@media (min-width: 720px) {
+  .sheet[data-state="panel"], .sheet-ghost {
+    top: var(--top); right: max(var(--gutter), env(safe-area-inset-right, 0px)); bottom: var(--top);
+    width: clamp(400px, 32vw, 460px);
+  }
+  /* The bar never overlaps the panel: where it would, the panel stands on it. */
+  .bar-under .sheet[data-state="panel"], .bar-under .sheet-ghost { bottom: calc(var(--bottom) + var(--bar-h) + 12px); }
+  .sheet:is([data-state="panel"], [data-state="morph"]) .sheet__scroll { padding: 32px 32px 36px; }
+  .sheet .ph-chip { top: 16px; right: 20px; height: 44px; }
+  /* The panel's scrolling content fades at its edges instead of being cut flat: 28px at the
+     bottom, and once scrolled 64px at the top, which clears the Preview chip (top 16–60). The
+     mask is on a descendant of the glass, never an ancestor. */
+  .sheet[data-state="panel"] .sheet__scroll {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
+  }
+  .sheet[data-state="panel"] .sheet__scroll.is-scrolled {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 64px, #000 calc(100% - 28px), transparent);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 64px, #000 calc(100% - 28px), transparent);
+  }
+}
+
+/* ── Phone: a bottom sheet with three detents ─────────────────────────────── */
+@media (max-width: 719.98px) {
+  .sheet:is([data-state="glance"], [data-state="peek"], [data-state="full"]), .sheet-ghost {
+    left: 8px; right: 8px;
+    top: calc(env(safe-area-inset-top, 0px) + 64px);
+    bottom: calc(var(--bottom) + var(--bar-h) + 8px);
+  }
+  .sheet:is([data-state="glance"], [data-state="peek"], [data-state="full"], [data-state="morph"]) .sheet__grab { display: block; }
+  .sheet:is([data-state="glance"], [data-state="peek"], [data-state="full"], [data-state="morph"]) .sheet__scroll { padding: 0 20px 28px; }
+  /* The content ends where the sheet's box ends (8px above the bar), with a short fade: the
+     glass carries on under the bar, the words do not. --off is the detent offset (JS). */
+  .sheet:is([data-state="glance"], [data-state="peek"], [data-state="full"], [data-state="morph"]) .sheet__scroll {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--off, 0px) - 28px), transparent calc(100% - var(--off, 0px)));
+    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--off, 0px) - 28px), transparent calc(100% - var(--off, 0px)));
+  }
+  /* Scrolled: the content also fades under the grab strip instead of being sliced flat. */
+  .sheet:is([data-state="glance"], [data-state="peek"], [data-state="full"], [data-state="morph"]) .sheet__scroll.is-scrolled {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16px, #000 calc(100% - var(--off, 0px) - 28px), transparent calc(100% - var(--off, 0px)));
+    mask-image: linear-gradient(to bottom, transparent 0, #000 16px, #000 calc(100% - var(--off, 0px) - 28px), transparent calc(100% - var(--off, 0px)));
+  }
+  /* Glance and Peek: the whole sheet is the drag surface; the content does not scroll. */
+  .sheet:is([data-state="glance"], [data-state="peek"]) { touch-action: none; }
+  .sheet:is([data-state="glance"], [data-state="peek"]) .sheet__scroll { overflow: hidden; }
+  /* Full: the content scrolls; the strip drags. */
+  .sheet[data-state="full"] .sheet__scroll { overflow: auto; touch-action: pan-y; }
+  /* No JS (or before it runs): a static sheet from 46svh down, scrolling inside. */
+  .sheet[data-state="panel"] { left: 8px; right: 8px; top: 46svh; bottom: calc(var(--bottom) + var(--bar-h) + 8px); }
+  .sheet[data-state="panel"] .sheet__scroll { padding: 24px 20px 28px; }
+  .sheet[data-state="panel"] .ph-chip { top: 4px; }
+}

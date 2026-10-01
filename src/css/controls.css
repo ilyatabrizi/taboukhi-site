@@ -1,0 +1,198 @@
+/* ── Controls inside the sheet: all paint, never glass (p15: glass never sits inside glass).
+   Every :hover is gated to a fine pointer; touch gets the same state through :active. ── */
+
+/* ── C7. Grouped rows ─────────────────────────────────────────────────────── */
+.group-label { display: block; padding: 0 16px 8px; font: 600 13px/1.3 var(--sys); letter-spacing: -.006em; color: var(--ti-2); }
+.group {
+  position: relative; border-radius: 18px; overflow: hidden;
+  background: var(--paint-group); box-shadow: var(--paint-group-edge);
+}
+.group-foot { padding: 8px 16px 0; font: 400 13px/1.4 var(--sys); letter-spacing: 0; color: var(--label-2); text-wrap: pretty; }
+.row {
+  position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 2px 16px;
+  min-height: 52px; padding: 13px 16px;
+  font: 400 17px/1.3 var(--sys); letter-spacing: var(--track-read); color: var(--bone);
+  transition: background-color .2s linear;
+}
+.row > :first-child { flex: 0 1 auto; max-width: none; }
+/* The label and the value share a line when they fit; otherwise the value drops whole to a
+   right-aligned second line. Neither is ever broken mid-phrase. */
+.row__v { flex: 0 0 auto; margin-left: auto; white-space: nowrap; min-width: 0; display: flex; align-items: center; justify-content: flex-end; gap: 8px; text-align: right; color: var(--label-2); }
+/* Hairlines: half a pixel of --sep, inset 16px on the leading edge. */
+.group > * + *::before { content: ""; position: absolute; left: 16px; right: 0; top: 0; height: 1px; background: var(--sep); transform: scaleY(.5); transform-origin: top; pointer-events: none; }
+@media (max-resolution: 1.49dppx) { .group > * + *::before { transform: none; } }
+a.row { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+a.row:active { background: var(--wash-focus); }
+a.row:focus-visible { outline: 2px solid var(--bone); outline-offset: -2px; border-radius: 18px; }
+.row--text { display: block; padding: 14px 16px; font: 400 17px/1.38 var(--sys); letter-spacing: var(--track-read); color: var(--bone); text-wrap: pretty; }
+.row--text .row__sub { display: block; margin-top: 4px; font-size: 13px; line-height: 1.4; letter-spacing: 0; color: var(--label-2); }
+
+/* The trailing glyph. Adapted from Uiverse.io by elijahgummer,
+   Buttons/elijahgummer_wise-jellyfish-93.html (MIT): its 10-unit chevron with a stem that
+   fades in while the chevron steps 3px forward (Tailwind group-hover classes ported to
+   CSS). Gradient text, lock icon and glow dropped; strokes are currentColor. */
+.go { flex: none; width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; overflow: visible; color: var(--label-2); }
+.go .st { opacity: 0; transition: opacity .25s var(--glass-ease); }
+.go .ch { transition: transform .25s var(--glass-ease); }
+a:focus-visible .go .st, a:active .go .st { opacity: 1; }
+a:focus-visible .go .ch, a:active .go .ch { transform: translateX(3px); }
+@media (hover: hover) and (pointer: fine) {
+  a.row:hover { background: var(--wash-focus); }
+  a:hover .go .st { opacity: 1; }
+  a:hover .go .ch { transform: translateX(3px); }
+}
+
+/* ── C8. The one bone button ──────────────────────────────────────────────────
+   Adapted from Uiverse.io by Mohsinech, Buttons/Mohsinech_tidy-yak-66.html (MIT): the
+   label rolls out upward while its twin rolls in from below, a meniscus wash rises from
+   the bottom edge (border-radius 50% 50% 0 0 → 0), and hover starts with a one-shot
+   horizontal stretch — all on its cubic-bezier(.4,0,0,1). Changed: it stays FILLED bone
+   at rest (the brand's one filled button), the wash is onyx at 7%, and the stretch uses
+   the house spring. */
+.btn {
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  height: 52px; padding: 0 28px; border: 0; border-radius: 999px; overflow: hidden;
+  background: var(--bone); color: var(--onyx);
+  font: 600 17px/1 var(--sys); letter-spacing: var(--track-read); white-space: nowrap;
+  -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none;
+  transition: scale .36s var(--spring), background-color .2s linear, color .2s linear;
+}
+.btn::after { content: ""; position: absolute; inset: 0; z-index: 0; background: rgba(2, 2, 2, .07); border-radius: 50% 50% 0 0; translate: 0 101%; transition: translate .55s var(--expo), border-radius .55s var(--expo); pointer-events: none; }
+.btn__l { position: relative; z-index: 1; display: inline-grid; overflow: hidden; line-height: 1.3; }
+.btn__l > span { grid-area: 1 / 1; display: block; transition: transform .55s var(--expo); }
+.btn__l > span + span { transform: translateY(100%); }
+.btn:active { scale: .97; transition-duration: .12s; }
+.btn:active::after { translate: 0 0; border-radius: 0; }
+.btn:active .btn__l > span:first-child { transform: translateY(-100%); }
+.btn:active .btn__l > span + span { transform: translateY(0); }
+.btn:disabled, .btn[aria-disabled="true"] { background: var(--fill-2); color: var(--label-3); cursor: default; }
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover:not(:disabled) { animation: btn-stretch .6s var(--spring); }
+  .btn:hover:not(:disabled)::after { translate: 0 0; border-radius: 0; }
+  .btn:hover:not(:disabled) .btn__l > span:first-child { transform: translateY(-100%); }
+  .btn:hover:not(:disabled) .btn__l > span + span { transform: translateY(0); }
+}
+@keyframes btn-stretch { 50% { scale: 1.035 1; } }
+@media (max-width: 719.98px) { .sheet .btn, .sheet-measure .btn { width: 100%; } }
+
+/* ── C13. Ghost capsules (Copy, Write) ───────────────────────────────────────── */
+.ghost {
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  height: 44px; min-width: 64px; padding: 0 16px; border: 0; border-radius: 999px;
+  background: var(--fill-2); box-shadow: inset 0 0 0 1px var(--sep);
+  font: 500 15px/1 var(--sys); letter-spacing: var(--track-read); color: var(--bone); white-space: nowrap;
+  -webkit-tap-highlight-color: transparent; transition: background-color .2s linear, scale .36s var(--spring);
+}
+.ghost:active { scale: .96; transition-duration: .12s; background: rgba(255, 255, 255, .14); }
+@media (hover: hover) and (pointer: fine) { .ghost:hover { background: rgba(255, 255, 255, .14); } }
+
+/* ── The rim ripple. Adapted from Uiverse.io by SelfMadeSystem,
+   Buttons/SelfMadeSystem_afraid-rabbit-12.html (MIT): its idea — a ripple that lives only
+   in a masked border ring (`mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff
+   0 0); mask-composite: exclude`) — kept; its 96-span grid dropped for one ::after whose
+   radial light grows from the press point through a registered --r. ── */
+.rp::after {
+  content: ""; position: absolute; inset: 0; z-index: 3; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: radial-gradient(circle at var(--px, 50%) var(--py, 50%), rgba(255, 255, 255, .95), rgba(255, 255, 255, .35) calc(var(--r) * .6), transparent var(--r));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
+  opacity: 0;
+}
+.rp.is-rp::after { animation: rp-ring .7s var(--glass-ease); }
+@keyframes rp-ring { from { --r: 0px; opacity: 1; } to { --r: 260px; opacity: 0; } }
+
+/* ── C9. The notify capsule. Adapted from Uiverse.io by Yaya12085,
+   Inputs/Yaya12085_evil-chipmunk-15.html (MIT): an email field with its button set inside
+   the right end, asleep (grey, no pointer events) until there is something to send, and an
+   inset that tightens on hover. Changed: paint on the sheet (not its own glass), a capsule,
+   awake keyed to :valid (never :placeholder-shown), bone when awake. ── */
+.notify { position: relative; height: 56px; border-radius: 999px; background: var(--paint-group); box-shadow: var(--paint-group-edge); }
+.notify input {
+  display: block; width: 100%; height: 100%; margin: 0; padding: 0 128px 0 16px; border: 0; border-radius: inherit;
+  background: transparent; color: var(--bone); caret-color: var(--ti-2);
+  font: 400 17px/1.2 var(--sys); letter-spacing: var(--track-read); outline: none; -webkit-appearance: none; appearance: none;
+}
+.notify input::placeholder { color: var(--label-3); opacity: 1; }
+.notify__go {
+  position: absolute; z-index: 4; top: 5px; right: 5px; bottom: 5px; min-width: 96px; padding: 0 18px;
+  border: 0; border-radius: 999px; background: var(--fill-2); color: var(--label-3);
+  font: 600 15px/1 var(--sys); letter-spacing: var(--track-read); white-space: nowrap; pointer-events: none;
+  transition: top .6s var(--spring), right .6s var(--spring), bottom .6s var(--spring), background-color .25s linear, color .25s linear, scale .36s var(--spring);
+}
+.notify:has(input:valid) .notify__go, .notify[aria-busy="true"] .notify__go { background: var(--bone); color: var(--onyx); pointer-events: auto; }
+.notify:has(input:valid) .notify__go:active { scale: .96; transition-duration: .12s, .12s, .12s, .25s, .25s, .12s; }
+@media (hover: hover) and (pointer: fine) { .notify:has(input:valid) .notify__go:hover { top: 3px; right: 3px; bottom: 3px; } }
+.notify input:-webkit-autofill, .notify input:-webkit-autofill:focus { -webkit-box-shadow: 0 0 0 100px #1b1b1c inset; -webkit-text-fill-color: var(--bone); }
+
+/* ── C10. Rim light on focus and while sending. Adapted from Uiverse.io by PhanDangKhoa96,
+   Inputs/PhanDangKhoa96_swift-warthog-78.html (MIT) — a conic border light turned by a
+   registered angle (`@property --border-angle` in `conic-gradient(from …)`) — with the same
+   @property trick as Akshdeep74644, Inputs/Akshdeep74644_dry-mouse-37.html (MIT). Changed:
+   one white arc in a masked 1.5px ring, one lap on focus that comes to rest upper-left,
+   a loop only while aria-busy; the pink/blue glows and blur are dropped. ── */
+.group::after, .notify::after {
+  content: ""; position: absolute; inset: 0; z-index: 3; border-radius: inherit; padding: 1.5px; pointer-events: none;
+  background: conic-gradient(from var(--rim), transparent 0 4%, rgba(255, 255, 255, .35) 10%, #fff 16%, rgba(255, 255, 255, .35) 22%, transparent 30% 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
+  opacity: 0; transition: opacity .3s var(--glass-ease);
+}
+.group:focus-within::after, .notify:focus-within::after { opacity: 1; animation: rim-lap 1.6s var(--glass-ease); }
+form[aria-busy="true"] .group::after, .notify[aria-busy="true"]::after { opacity: 1; animation: rim-lap 2.4s linear infinite; }
+.group.is-offscreen::after, .notify.is-offscreen::after { animation-play-state: paused; }
+@keyframes rim-lap { from { --rim: 250deg; } to { --rim: 610deg; } }
+
+/* ── C11. Segmented control. Adapted from Uiverse.io by zanina-yassine,
+   Buttons/zanina-yassine_curly-shrimp-52.html (MIT): hidden radios, labels on top, one
+   indicator that slides under the checked label (`.tab--2:checked ~ .indicator`). With the
+   hover "peek" from cbolson, Toggle-switches/cbolson_slippery-treefrog-30.html (MIT): the
+   slider leans toward the option under the pointer before it is chosen. Changed: onyx
+   paint, 1fr columns, a transform instead of `left`, the house spring, no shadow. ── */
+.seg__track {
+  position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+  height: 50px; padding: 3px; border-radius: 999px;
+  background: var(--fill); box-shadow: inset 0 0 0 1px var(--sep);
+}
+.seg__track > input { position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
+.seg__track > label {
+  position: relative; z-index: 1; display: grid; place-items: center; min-width: 0; height: 44px; border-radius: 999px;
+  font: 500 15px/1 var(--sys); letter-spacing: var(--track-read); color: var(--label-2); cursor: pointer;
+  -webkit-tap-highlight-color: transparent; transition: color .2s linear;
+}
+.seg__track > input:checked + label { color: var(--bone); font-weight: 600; }
+.seg__track > input:focus-visible + label { outline: 2px solid var(--bone); outline-offset: -2px; }
+.seg__thumb {
+  --i: 0;
+  position: absolute; left: 3px; top: 3px; bottom: 3px; width: calc((100% - 6px) / 3); border-radius: 999px;
+  background: rgba(255, 255, 255, .16); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18); pointer-events: none;
+  transform: translateX(calc(var(--i) * 100% + clamp(-6%, (var(--h, var(--i)) - var(--i)) * 100%, 6%)));
+  transition: transform .5s var(--spring);
+}
+.seg__track:has(> input:nth-of-type(2):checked) .seg__thumb { --i: 1; }
+.seg__track:has(> input:nth-of-type(3):checked) .seg__thumb { --i: 2; }
+@media (hover: hover) and (pointer: fine) {
+  .seg__track:has(> label:nth-of-type(1):hover) .seg__thumb { --h: 0; }
+  .seg__track:has(> label:nth-of-type(2):hover) .seg__thumb { --h: 1; }
+  .seg__track:has(> label:nth-of-type(3):hover) .seg__thumb { --h: 2; }
+}
+
+/* ── C12. The lens-pair switch. Adapted from Uiverse.io by njesenberger,
+   Toggle-switches/njesenberger_friendly-otter-40.html (MIT): two discs joined by a bridge,
+   a goo filter (feGaussianBlur 10, alpha row 0 0 0 18 -7), and a knob that pours from one
+   disc to the other. Changed: bone knob, onyx-palette track, every glyph removed, a real
+   role="switch" checkbox over the drawing, the house easing and spring. ── */
+.sw { position: relative; flex: none; width: 64px; height: 31px; }
+.sw__input { position: absolute; z-index: 1; inset: -7px -4px; width: auto; height: auto; margin: 0; opacity: 0; -webkit-appearance: none; appearance: none; cursor: pointer; }
+.sw__svg { width: 64px; height: 31px; overflow: visible; border-radius: 999px; }
+.sw__track { fill: rgba(244, 242, 237, .18); transition: fill .4s var(--glass-ease); }
+/* Origin at the centre of the VIEW box (146, 71), as in the original: each disc shrinks
+   toward the bridge and the other grows out of it, which is what makes the knob pour. */
+.sw__pill, .sw__disc { fill: var(--bone); transform-box: view-box; transform-origin: 50% 50%; }
+.sw__pill { transition: transform .6s var(--glass-ease); }
+.sw__disc { transition: transform .45s var(--spring); }
+.sw__disc--r { transform: scale(0); }
+.sw__input:checked + .sw__svg .sw__track { fill: var(--ti); }
+.sw__input:checked + .sw__svg .sw__pill { transform: translateX(150px); }
+.sw__input:checked + .sw__svg .sw__disc--l { transform: scale(0); }
+.sw__input:checked + .sw__svg .sw__disc--r { transform: scale(1); }
+.sw__input:focus-visible + .sw__svg { outline: 2px solid var(--bone); outline-offset: 3px; }

@@ -1,0 +1,66 @@
+/* ── Glass: the material (C2) ─────────────────────────────────────────────────
+   One material, three thicknesses (p13). Exactly three selectors in this whole stylesheet
+   carry a backdrop-filter: .capsule, .bar, .sheet (p15, "Three surfaces, no more"). Every
+   fallback turns the filter off through --glass-filter, never with a fourth declaration.
+   What darkens the glass lives INSIDE the filter as brightness(); what is painted on top
+   is a white wash. No drop shadow anywhere (D11). */
+.capsule, .bar, .sheet {
+  /* Declared here, not on :root, so each element resolves its OWN thickness. */
+  --glass-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation)) brightness(var(--glass-dim));
+  /* Two lights, sized to each surface (p13): the key upper-left, a whisper lower-right, and
+     nothing in between — never a uniform hairline that reads as a drawn border (p15). */
+  --glass-spec:
+    radial-gradient(circle var(--spec-r, 320px) at var(--hx) var(--hy),
+      rgba(255, 255, 255, .5), rgba(255, 255, 255, .12) 40%, rgba(255, 255, 255, 0) 72%),
+    radial-gradient(circle calc(var(--spec-r, 320px) * .6) at calc(100% - var(--hx)) calc(100% - var(--hy)),
+      rgba(255, 255, 255, .14), rgba(255, 255, 255, 0) 70%);
+  background: var(--glass-bg);
+  box-shadow: var(--glass-inner);
+  border: 1px solid var(--glass-border);
+  transition: background-color .4s var(--glass-ease), --hx .6s var(--spring), --hy .6s var(--spring);
+}
+/* The sheet's wash is scaled by --wash (tokens.css), so the frost can sit closer to onyx on Home
+   and gather into the full-wash panel without a jump: the number transitions with the morph. */
+.sheet {
+  background: linear-gradient(135deg, rgba(255, 255, 255, calc(.13 * var(--wash))), rgba(255, 255, 255, calc(.06 * var(--wash))) 48%, rgba(255, 255, 255, calc(.1 * var(--wash))));
+  transition: background-color .4s var(--glass-ease), --hx .6s var(--spring), --hy .6s var(--spring), --wash .64s var(--glass-ease);
+}
+.capsule { --spec-r: 90px; }
+.bar { --spec-r: 170px; }
+.bar.is-folded { --spec-r: 90px; }              /* folded to one tab: capsule-sized */
+.sheet { --spec-r: 320px; }
+.capsule { -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); }
+.bar { -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); }
+.sheet { -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); }
+
+/* Thin: the floating capsule. Thick: the sheet, which holds the most small type. */
+.glass--thin { --glass-blur: 15px; --glass-saturation: 195%; --glass-dim: .52; --glass-border: rgba(255, 255, 255, .17); }
+.glass--thick { --glass-blur: 30px; --glass-dim: .34; }
+
+/* Specular edge. Adapted from Uiverse.io by Spacious74, Cards/Spacious74_moody-owl-18.html
+   (MIT): only its corner-parked radial rim is kept — `radial-gradient(circle 230px at 0% 0%,
+   #fff, #0c0d0d)` behind a 1px padding — redrawn as a masked 1px ring in white at a
+   percentage. Its ray, travelling dot and guide lines are dropped: a glossy fill is forbidden. */
+@supports ((-webkit-mask-composite: xor) or (mask-composite: exclude)) {
+  .capsule, .bar, .sheet { border-width: 0; }
+  .capsule::before, .bar::before, .sheet::before, .bar__thumb::before, .lens::before {
+    content: ""; position: absolute; inset: 0; z-index: 2; border-radius: inherit; padding: 1px; pointer-events: none;
+    background: var(--glass-spec);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
+    transition: opacity .16s linear;
+  }
+}
+
+/* The lens: the clear window has no surface of its own, so its rim is all that says "glass"
+   when it crosses the black beyond the metal. Same two lights, a little more of each. */
+.lens {
+  --glass-spec:
+    radial-gradient(ellipse 72% 72% at 18% 14%, rgba(255, 255, 255, .62), rgba(255, 255, 255, .16) 45%, rgba(255, 255, 255, .05) 75%),
+    radial-gradient(ellipse 48% 48% at 86% 90%, rgba(255, 255, 255, .24), rgba(255, 255, 255, 0) 70%);
+}
+@supports ((-webkit-mask-composite: xor) or (mask-composite: exclude)) { .lens::before { padding: 1.25px; } }
+
+@media (hover: hover) and (pointer: fine) {
+  .capsule:hover, .bar:hover { background: var(--glass-bg-hover); }
+}

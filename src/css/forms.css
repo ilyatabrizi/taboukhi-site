@@ -1,0 +1,51 @@
+/* ── Forms: Settings rows, not a web form ─────────────────────────────────────── */
+.frow {
+  position: relative; display: grid; grid-template-columns: 96px minmax(0, 1fr); column-gap: 12px; align-items: start;
+  min-height: 52px; padding: 0 16px; transition: background-color .2s linear;
+}
+.frow > label { padding-top: 17px; font: 500 15px/1.2 var(--sys); letter-spacing: var(--track-read); color: var(--label-2); cursor: text; }
+.frow__in { min-width: 0; }
+.frow input, .frow textarea, .area textarea {
+  display: block; width: 100%; min-width: 0; min-height: 52px; margin: 0; padding: 14px 0; border: 0; border-radius: 0;
+  background: transparent; color: var(--bone); caret-color: var(--ti-2);
+  font: 400 17px/1.4 var(--sys); letter-spacing: var(--track-read); outline: none; -webkit-appearance: none; appearance: none;
+}
+.frow input::placeholder, .area textarea::placeholder { color: var(--label-3); opacity: 1; }
+.frow:focus-within, .area:focus-within { background: var(--wash-focus); }
+.frow input:-webkit-autofill, .frow input:-webkit-autofill:focus { -webkit-box-shadow: 0 0 0 100px #1b1b1c inset; -webkit-text-fill-color: var(--bone); caret-color: var(--ti-2); }
+.frow__help, .frow__err { display: block; margin-top: -6px; padding-bottom: 12px; font: 400 13px/1.4 var(--sys); letter-spacing: 0; color: var(--label-2); text-wrap: pretty; }
+.area { position: relative; padding: 2px 16px 4px; }
+.area textarea { min-height: 112px; resize: none; line-height: 1.45; }
+.area .frow__err { margin-top: 0; }
+
+/* Errors: the meaning-colour from outside the palette, at 13px, only on invalid messages. */
+.err { font: 400 13px/1.4 var(--sys); letter-spacing: 0; color: var(--error); }
+.frow__err:empty, .err:empty { display: none; }
+.field-err { padding: 8px 16px 0; }
+
+.form-block + .form-block { margin-top: 28px; }
+.switch-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 16px; min-height: 60px; padding: 14px 16px; }
+.switch-row__t { font: 400 17px/1.3 var(--sys); letter-spacing: var(--track-read); color: var(--bone); text-wrap: pretty; }
+/* The label is a 44px target even on one line: it reaches into the row's padding. */
+.switch-row__t label { display: block; padding: 11px 0; margin: -11px 0; cursor: pointer; }
+
+/* The preview flag: says plainly that nothing is sent. */
+.flag { display: flex; align-items: center; gap: 8px; font: 400 13px/1.4 var(--sys); letter-spacing: 0; color: var(--label-2); }
+.flag::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--ti-2); }
+/* In the footnotes the dot hangs in the margin, so the words share the rows' text edge. */
+.notes .flag::before { margin-left: -14px; }
+.fine { font: 400 13px/1.4 var(--sys); letter-spacing: 0; color: var(--label-2); text-wrap: pretty; }
+
+/* ── C14. Success: replaces the form in place, the still K on onyx ───────────── */
+.done { display: grid; justify-items: center; text-align: center; padding: 20px 8px 4px; }
+/* The K alone, no disc: a K in a round button reads as an iOS Back button (p05). */
+.done__mark { display: block; width: auto; height: auto; border-radius: 0; background: none; box-shadow: none; color: var(--bone); }
+.done__mark svg { height: 40px; width: auto; }
+.done__h { margin-top: 18px; max-width: 26em; font: 600 17px/1.35 var(--sys); letter-spacing: var(--track-read); color: var(--bone); outline: none; overflow-wrap: anywhere; text-wrap: pretty; }
+.done__p { margin-top: 6px; font: 400 13px/1.4 var(--sys); letter-spacing: 0; color: var(--label-2); }
+.tlink {
+  display: inline-flex; align-items: center; min-height: 44px; margin-top: 8px; padding: 0 8px; border: 0; background: none;
+  font: 500 15px/1 var(--sys); letter-spacing: var(--track-read); color: var(--ti-2); cursor: pointer;
+}
+@media (hover: hover) and (pointer: fine) { .tlink:hover { color: var(--bone); } }
+.tlink:active { color: var(--bone); }

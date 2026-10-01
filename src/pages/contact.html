@@ -1,0 +1,29 @@
+---
+route: contact
+title: Contact — TABOUKHI
+station: contact
+tab: contact
+eyebrow: CONTACT
+---
+<header class="head">
+  <p class="eyebrow">{{eyebrow}}</p>
+  <h1 class="title" tabindex="-1">Write to us.</h1>
+  <p class="lede">One address for everything.</p>
+</header>
+<div class="blk--first">
+  <div class="group" data-peek>
+    <div class="mail">
+      <span class="mail__a" id="mail-a">info@taboukhi.com</span>
+      <span class="mail__do">
+        <button class="ghost rp" type="button" data-copy="info@taboukhi.com" data-ok="Copied." data-fail="Copy did not work. The address is info@taboukhi.com." aria-describedby="mail-a">Copy</button>
+        <a class="ghost rp" href="mailto:info@taboukhi.com" aria-describedby="mail-a">Write</a>
+      </span>
+    </div>
+  </div>
+  <p class="group-foot" data-ph>If we write, it will be from this address.</p>
+</div>
+<div class="group blk">
+  <a class="row" href="{{root}}commission/"><span>Commissions</span><span class="row__v">Start a request {{go}}</span></a>
+  <a class="row" href="https://taboukhi.com/" rel="noopener" target="_blank"><span>Founding team</span><span class="row__v">Apply on taboukhi.com {{ext}}</span></a>
+  <a class="row row--solo" href="{{root}}notices/"><span>Notices</span><span class="row__v">{{go}}</span></a>
+</div>

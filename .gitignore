@@ -1,0 +1,7 @@
+.DS_Store
+SPEC.md
+shots/
+__pycache__/
+*.sb-*
+assets/media/source/
+docs/

@@ -1,0 +1,33 @@
+/* ── The film and the camera (C1) ─────────────────────────────────────────────
+   .film is fixed and never transformed, filtered or faded. .film__cam is the camera: the
+   ONLY transformed film node. It is sized to the film's own cover box (not the viewport),
+   so a camera move has real picture to travel over and the station clamp can keep the
+   film covering the screen. Still and video are both absolute and inset 0 (the KAI trap:
+   stacked blocks play the reel out of sight). */
+.film { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: var(--onyx); container-type: size; pointer-events: none; }
+.film__pic { display: contents; }
+.film__cam {
+  --ar: 1;                                             /* film-sq-1920: 1920 x 1920 */
+  --fw: max(100cqw, 100cqh * var(--ar));
+  --fh: max(100cqh, 100cqw / var(--ar));
+  position: absolute; left: 50%; top: 50%;
+  width: var(--fw); height: var(--fh);
+  margin-left: calc(var(--fw) / -2); margin-top: calc(var(--fh) / -2);
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+/* Container units are missing (Safari < 16): the camera is the viewport, not a 0×0 box. */
+@supports not (width: 1cqw) { .film__cam { left: 0; top: 0; width: 100%; height: 100%; margin: 0; } }
+/* film-pt-1080 (1080 x 1920) on phones and portrait tablets. JS pins the encode the video
+   actually loaded (data-enc), because <source media> is only evaluated once. */
+@media (max-aspect-ratio: 4/5) { .film:not([data-enc]) .film__cam { --ar: .5625; } }
+.film[data-enc="pt"] .film__cam { --ar: .5625; }
+.film[data-enc="sq"] .film__cam { --ar: 1; }
+
+.film__still, .film__video, .film__ambient { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
+.film__still { z-index: 0; }
+.film__video { z-index: 2; }
+.js .film__video { opacity: 0; transition: opacity .9s var(--glass-ease); }
+.js .film__video.is-on { opacity: 1; }
+/* Tier 2 only (see fallback.css). */
+.film__ambient { z-index: 1; display: none; }

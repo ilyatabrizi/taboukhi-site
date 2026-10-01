@@ -1,0 +1,44 @@
+/* ── Tiers, fallbacks and preferences (last, so nothing above can undo them) ─────
+   Every fallback turns the glass off through --glass-filter, so the three selectors in
+   glass.css remain the only ones that carry a backdrop-filter. None of this touches the
+   film: it is never hidden, not under reduced motion and not under reduced transparency. */
+
+/* Tier 1b: the sheet (frost and panel) drops from thick to regular glass. Tier 2 keeps
+   1b on inner pages. */
+html[data-tier="1b"] .sheet, html[data-tier="2"] .sheet { --glass-blur: 20px; --glass-dim: .32; }
+
+/* Tier 2: the Home frost without a backdrop-filter. The frost is a pre-blurred ambient
+   film (brightness .34, saturate 185% — the thick glass's own clamp), and the sharp film
+   shows only inside the lens, clipped to a circle with the lens variables JS writes on it. */
+html[data-tier="2"] .sheet[data-state="home"] { --glass-filter: none; background: none; }
+html[data-tier="2"] body[data-route="home"] .film__ambient { display: block; filter: brightness(.34) saturate(185%); }
+html[data-tier="2"] body[data-route="home"] .film__still { z-index: 2; clip-path: circle(var(--lr) at var(--lx) var(--ly)); }
+html[data-tier="2"] body[data-route="home"] .film__video { z-index: 3; clip-path: circle(var(--lr) at var(--lx) var(--ly)); }
+
+/* Tier 3: all three surfaces are paint. Home keeps the lens as a porthole in the paint. */
+html[data-tier="3"] .capsule, html[data-tier="3"] .bar, html[data-tier="3"] .sheet { --glass-filter: none; background: var(--paint-fallback); }
+
+/* Where the browser cannot blur at all (with or without JS). */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .capsule, .bar, .sheet { background: var(--paint-fallback); }
+}
+
+/* Asked for less transparency: a plain surface on purpose, not as a failure (p15). */
+@media (prefers-reduced-transparency: reduce) {
+  .capsule, .bar, .sheet, html[data-tier] .capsule, html[data-tier] .bar, html[data-tier] .sheet { --glass-filter: none; background: var(--paint-rt); }
+  .capsule::before, .bar::before, .sheet:not([data-state="home"]):not([data-state="morph"])::before { opacity: .35; }
+  html[data-tier] body[data-route="home"] .film__ambient { display: none; }
+  html[data-tier] body[data-route="home"] .film__still, html[data-tier] body[data-route="home"] .film__video { clip-path: none; }
+}
+
+/* Reduced motion: nothing longer than 200 ms but the film itself. The focus rim shows a
+   static arc at rest (250deg). The film keeps playing; the lens keeps tracking. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+}
+
+/* JS-owned first-load states (html.intro is set by main.js and always removed). */
+.intro .home__line, .intro .home__hint { opacity: 0; }
+/* Hidden means gone: not a live, invisible target a tap could land on. */
+.intro-bar .bar { opacity: 0; visibility: hidden; pointer-events: none; }
+.intro-inert .bar { pointer-events: none; }

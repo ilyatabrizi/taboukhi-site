@@ -1,0 +1,23 @@
+/* ── The lens (C6): Home only ─────────────────────────────────────────────────
+   A sibling of the sheet, so the sheet's mask never cuts it. JS writes its transform,
+   width and height (2r) every video frame; its rim is the glass's own specular ring
+   (glass.css), light upper-left and a whisper lower-right. Paint only: no fill, no glow. */
+.lens {
+  position: fixed; z-index: 11; left: 0; top: 0; width: 264px; height: 264px;
+  border-radius: 50%; pointer-events: none;
+  -webkit-touch-callout: none; user-select: none; -webkit-user-select: none;
+}
+.js .lens { opacity: 0; }
+.lens__handle {
+  position: absolute; inset: -12px; margin: 0; padding: 0; border: 0; border-radius: 50%;
+  background: none; pointer-events: auto; touch-action: none; cursor: default;
+  -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+}
+.lens__handle:focus-visible { outline: none; }
+.lens:has(.lens__handle:focus-visible) { outline: 2px solid var(--bone); outline-offset: 3px; }
+.lens.is-grab .lens__handle { cursor: grabbing; }
+
+/* No JS: the rim sits on the CSS default hole (sheet.css) and there is nothing to drag. */
+html:not(.js) .lens { left: calc(54% - 110px); top: calc(43% - 110px); width: 220px; height: 220px; }
+@media (min-width: 720px) { html:not(.js) .lens { left: calc(50% - 150px); top: calc(48% - 150px); width: 300px; height: 300px; } }
+html:not(.js) .lens__handle { display: none; }

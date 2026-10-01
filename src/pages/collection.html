@@ -1,0 +1,37 @@
+---
+route: collection
+title: Collection — TABOUKHI
+station: collection
+tab: collection
+eyebrow: THE COLLECTION
+---
+<header class="head">
+  <p class="eyebrow">{{eyebrow}}</p>
+  <h1 class="title" tabindex="-1">The first pieces are not ready.</h1>
+  <p class="lede" data-ph>They will be shown here when they are finished, and not before.</p>
+  <p class="lede" data-ph>Leave your email and we will write once, when they are.</p>
+</header>
+{{collection}}
+<div class="blk--first" data-form-wrap="notify">
+  <form class="notify" data-peek data-form="notify" action="mailto:info@taboukhi.com?subject=Collection" method="post" enctype="text/plain">
+    <label class="vh" for="n-email">Email</label>
+    <input id="n-email" name="email" type="email" required pattern="[^@\s]+@[^@\s]+\.[^@\s]{2,}" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" enterkeyhint="send" maxlength="254" placeholder="name@example.com" aria-describedby="n-help">
+    <button class="notify__go" type="submit" data-busy="Sending">Tell me</button>
+  </form>
+  <p class="err field-err" id="n-err" data-err="email" data-empty="Your email, please." hidden>That address does not look complete.</p>
+  <div class="notes blk--tight">
+    <p class="fine" id="n-help" data-ph>Used for this one message and nothing else.</p>
+    <p class="flag">Preview. Nothing is sent from this page yet.</p>
+  </div>
+</div>
+<template data-done="notify">
+  <div class="done" aria-live="polite">
+    <div class="done__mark" aria-hidden="true"><svg viewBox="1403.08 4.1 205.84 215.68" focusable="false"><use href="#p-k"/></svg></div>
+    <p class="done__h" tabindex="-1" data-ph>Thank you. On the live site we would write to <span data-email></span> once, when the pieces are ready.</p>
+    <p class="done__p">This is a preview. Nothing was sent.</p>
+    <button class="tlink" type="button" data-reset>Use another address</button>
+  </div>
+</template>
+<div class="group blk">
+  <a class="row" href="{{root}}commission/"><span>Would rather design your own?</span><span class="row__v">Commission {{go}}</span></a>
+</div>
